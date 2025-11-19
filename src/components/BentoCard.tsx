@@ -7,41 +7,57 @@ interface BentoCardProps {
   title?: string;
   icon?: React.ElementType;
   onClick?: () => void;
+  weatherCode?: number;
 }
 
-const BentoCard: React.FC<BentoCardProps> = ({ children, className = "", title, icon: Icon, onClick }) => (
-  <motion.div 
-    onClick={onClick}
-    whileHover={{ scale: 1.02, rotateX: 2, rotateY: 2 }}
-    whileTap={{ scale: 0.98 }}
-    drag
-    dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-    dragElastic={0.2}
-    className={`
-      relative overflow-hidden flex flex-col
-      bg-[#0f0f11]/60 backdrop-blur-xl 
-      border border-white/5
-      shadow-[0_8px_30px_rgb(0,0,0,0.12)]
-      hover:bg-[#1a1a1d]/70 hover:border-white/10 hover:shadow-[0_20px_40px_rgb(0,0,0,0.2)]
-      transition-colors duration-500 ease-out group
-      rounded-[24px] cursor-grab active:cursor-grabbing
-      ${className}
-    `}
-    style={{ perspective: 1000 }}
-  >
-    <div className="absolute inset-0 opacity-[0.02] pointer-events-none bg-noise mix-blend-overlay z-0" />
-    
-    {(title || Icon) && (
-      <div className="flex items-center gap-2 px-5 pt-5 z-10">
-        {Icon && <Icon size={12} className="text-white/40" />}
-        {title && <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">{title}</span>}
-      </div>
-    )}
+const BentoCard: React.FC<BentoCardProps> = ({ children, className = "", title, icon: Icon, onClick, weatherCode }) => {
+  // Determinar si hay efectos climáticos que requieren animación de viento
+  const hasWeatherEffect = weatherCode && (
+    (weatherCode >= 51 && weatherCode <= 67) || // Lluvia
+    (weatherCode >= 71 && weatherCode <= 77) || // Nieve
+    (weatherCode >= 95) // Tormenta
+  );
+  
+  const isIntenseWeather = weatherCode && (
+    (weatherCode >= 61 && weatherCode <= 67) || // Lluvia intensa
+    (weatherCode >= 95) // Tormenta
+  );
 
-    <div className="relative z-10 flex-1 px-5 pb-5 flex flex-col">
-      {children}
-    </div>
-  </motion.div>
-);
+  return (
+    <motion.div 
+      onClick={onClick}
+      whileHover={{ scale: 1.02, rotateX: 2, rotateY: 2 }}
+      whileTap={{ scale: 0.98 }}
+      drag
+      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+      dragElastic={0.2}
+      className={`
+        relative overflow-hidden flex flex-col
+        bg-[#0f0f11]/60 backdrop-blur-xl 
+        border border-white/5
+        shadow-[0_8px_30px_rgb(0,0,0,0.12)]
+        hover:bg-[#1a1a1d]/70 hover:border-white/10 hover:shadow-[0_20px_40px_rgb(0,0,0,0.2)]
+        transition-colors duration-500 ease-out group
+        rounded-[24px] cursor-grab active:cursor-grabbing
+        ${hasWeatherEffect ? (isIntenseWeather ? 'animate-card-sway-intense' : 'animate-card-sway') : ''}
+        ${className}
+      `}
+      style={{ perspective: 1000 }}
+    >
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none bg-noise mix-blend-overlay z-0" />
+      
+      {(title || Icon) && (
+        <div className="flex items-center gap-2 px-5 pt-5 z-20">
+          {Icon && <Icon size={12} className="text-white/40" />}
+          {title && <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">{title}</span>}
+        </div>
+      )}
+
+      <div className="relative z-20 flex-1 px-5 pb-5 flex flex-col">
+        {children}
+      </div>
+    </motion.div>
+  );
+};
 
 export default BentoCard;

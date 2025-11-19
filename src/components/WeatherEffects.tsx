@@ -9,7 +9,7 @@ const WeatherEffects: React.FC<WeatherEffectsProps> = ({ code, isDay }) => {
   const renderParticles = (type: 'rain' | 'snow', count: number, speedMultiplier: number = 1, sizeMultiplier: number = 1) => (
     [...Array(count)].map((_, i) => {
       const size = (type === 'rain' ? (Math.random() * 2 + 1) : (Math.random() * 4 + 2)) * sizeMultiplier;
-      const opacity = type === 'rain' ? (Math.random() * 0.3 + 0.1) : (Math.random() * 0.4 + 0.2);
+      const opacity = type === 'rain' ? (Math.random() * 0.4 + 0.3) : (Math.random() * 0.5 + 0.3);
       const baseDuration = type === 'rain' ? 1 : 5;
       const animationDuration = `${(Math.random() * baseDuration + baseDuration * 0.5) / speedMultiplier}s`;
       const animationDelay = `${Math.random() * 5}s`;
@@ -76,12 +76,16 @@ const WeatherEffects: React.FC<WeatherEffectsProps> = ({ code, isDay }) => {
   if (code >= 51 && code <= 67) {
     return (
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        {/* Far Background Layer - Very Slow, Tiny, Blurred */}
+        <div className="opacity-20 scale-50 blur-[1px]">{renderParticles('rain', 80, 0.5, 0.6)}</div>
         {/* Background Layer - Slow, Small */}
-        <div className="opacity-30 scale-75">{renderParticles('rain', 100, 0.7, 0.8)}</div>
+        <div className="opacity-40 scale-75 blur-[0.5px]">{renderParticles('rain', 120, 0.7, 0.8)}</div>
         {/* Middle Layer - Normal */}
-        <div className="opacity-60">{renderParticles('rain', 100, 1, 1)}</div>
+        <div className="opacity-70">{renderParticles('rain', 150, 1, 1)}</div>
         {/* Foreground Layer - Fast, Large */}
-        <div className="opacity-80 scale-110">{renderParticles('rain', 50, 1.3, 1.2)}</div>
+        <div className="opacity-90 scale-110">{renderParticles('rain', 80, 1.4, 1.3)}</div>
+        {/* Very Close Layer - Ultra Fast, Very Large */}
+        <div className="opacity-95 scale-125 blur-[0.5px]">{renderParticles('rain', 40, 1.8, 1.5)}</div>
       </div>
     );
   }
@@ -90,9 +94,16 @@ const WeatherEffects: React.FC<WeatherEffectsProps> = ({ code, isDay }) => {
   if (code >= 71 && code <= 77) {
     return (
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="opacity-40 blur-[1px]">{renderParticles('snow', 50, 0.5, 0.8)}</div>
-        <div className="opacity-70">{renderParticles('snow', 50, 1, 1)}</div>
-        <div className="opacity-90">{renderParticles('snow', 30, 1.2, 1.5)}</div>
+        {/* Far Background - Small, Slow, Very Blurred */}
+        <div className="opacity-30 scale-50 blur-[2px]">{renderParticles('snow', 60, 0.4, 0.6)}</div>
+        {/* Background Layer - Small, Slow, Blurred */}
+        <div className="opacity-50 scale-75 blur-[1.5px]">{renderParticles('snow', 70, 0.6, 0.8)}</div>
+        {/* Middle Layer - Normal Size and Speed */}
+        <div className="opacity-75 blur-[0.5px]">{renderParticles('snow', 80, 1, 1)}</div>
+        {/* Foreground Layer - Larger, Faster */}
+        <div className="opacity-90 scale-110">{renderParticles('snow', 50, 1.3, 1.4)}</div>
+        {/* Very Close Layer - Very Large, Fast, Sharp */}
+        <div className="opacity-95 scale-125">{renderParticles('snow', 30, 1.5, 1.8)}</div>
       </div>
     );
   }

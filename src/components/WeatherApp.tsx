@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Search, Wind, Droplets, Sun, MapPin, Sunrise, Navigation, Thermometer, Heart, X
+  Search, Wind, Droplets, Sun, MapPin, Sunrise, Navigation, Thermometer, Heart, X, Map as MapIcon
 } from 'lucide-react';
 import '../styles/weather.scss';
 import { useWeather } from '../hooks/useWeather';
@@ -12,6 +12,7 @@ import { getWeatherIcon, formatTime, getBgGradient, getWeatherDescription } from
 export default function WeatherApp() {
   const [query, setQuery] = useState('');
   const [showResults, setShowResults] = useState(false);
+  const [showMap, setShowMap] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   
   const { 
@@ -75,6 +76,26 @@ export default function WeatherApp() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.8)_100%)] pointer-events-none" />
       </div>
 
+      {showMap && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-5xl h-[80vh] bg-[#1a1a1d] rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+            <button 
+              onClick={() => setShowMap(false)}
+              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/50 text-white hover:bg-white/20 transition-colors"
+            >
+              <X size={20} />
+            </button>
+            <iframe 
+              width="100%" 
+              height="100%" 
+              src={`https://embed.windy.com/embed2.html?lat=${weather?.latitude || 40}&lon=${weather?.longitude || -3}&detailLat=${weather?.latitude || 40}&detailLon=${weather?.longitude || -3}&width=650&height=450&zoom=5&level=surface&overlay=temp&product=ecmwf&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1`} 
+              frameBorder="0"
+              className="w-full h-full"
+            ></iframe>
+          </div>
+        </div>
+      )}
+
       <div className="relative z-10 max-w-6xl mx-auto px-4 md:px-8 py-8 min-h-screen flex flex-col">
         
         <header className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
@@ -97,7 +118,15 @@ export default function WeatherApp() {
               <Navigation size={18} />
             </button>
 
-            <div className="relative group w-full md:w-[300px]">
+            <button 
+              onClick={() => setShowMap(true)}
+              className="p-2.5 rounded-full bg-white/5 border border-white/5 hover:bg-white/10 transition-colors text-white/70 hover:text-white"
+              title="Ver mapa mundial"
+            >
+              <MapIcon size={18} />
+            </button>
+
+            <div className="relative group flex-1 md:w-[300px] md:flex-none">
               <form onSubmit={handleSearchSubmit} className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 w-4 h-4 group-focus-within:text-white transition-colors" />
                 <input 
@@ -143,8 +172,12 @@ export default function WeatherApp() {
         {!loading && !error && weather && (
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-10 animate-in fade-in duration-700 slide-in-from-bottom-4">
             
-            <BentoCard className="md:col-span-2 lg:col-span-2 row-span-2 justify-between min-h-[340px] group">
-              <div className="flex justify-between items-start w-full pt-1">
+            <BentoCard className="md:col-span-2 lg:col-span-2 row-span-2 justify-between min-h-[340px] group" weatherCode={weather.current.weather_code}>
+              <div className="absolute -bottom-6 -right-6 md:-bottom-2 md:right-6 opacity-20 md:opacity-100 pointer-events-none scale-75 md:scale-110 transition-transform duration-700 group-hover:scale-90 md:group-hover:scale-125 drop-shadow-2xl z-[1]">
+                 {getWeatherIcon(weather.current.weather_code, weather.current.is_day, 180)}
+              </div>
+
+              <div className="flex justify-between items-start w-full pt-1 relative z-20">
                  <div>
                     <div className="flex items-center gap-2 text-white/50 mb-1">
                         <MapPin size={12} />
@@ -174,13 +207,13 @@ export default function WeatherApp() {
                  </div>
               </div>
 
-              <div className="flex-1 flex flex-col justify-center py-4">
-                  <div className="flex items-center gap-6">
+              <div className="flex-1 flex flex-col justify-center py-4 relative z-20">
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6">
                       <span className="text-[8rem] leading-none font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white to-white/40 drop-shadow-2xl">
                           {Math.round(weather.current.temperature_2m)}°
                       </span>
                       
-                      <div className="h-24 w-[1px] bg-gradient-to-b from-white/0 via-white/10 to-white/0 mx-2" />
+                      <div className="hidden md:block h-24 w-[1px] bg-gradient-to-b from-white/0 via-white/10 to-white/0 mx-2" />
                       
                       <div className="flex flex-col justify-center gap-3">
                           <div className="flex items-center gap-3 text-sm font-medium">
@@ -193,7 +226,7 @@ export default function WeatherApp() {
                                 <span className="text-white/60">{Math.round(weather.daily.temperature_2m_min[0])}°</span>
                              </div>
                           </div>
-                          <div className="flex items-center gap-2 text-xs text-white/40 bg-white/5 px-3 py-1.5 rounded-full border border-white/5">
+                          <div className="flex items-center gap-2 text-xs text-white/40 bg-white/5 px-3 py-1.5 rounded-full border border-white/5 self-start">
                              <Thermometer size={12} className="text-white/60"/>
                              <span>Sensación</span>
                              <span className="text-white">{Math.round(weather.current.apparent_temperature)}°</span>
@@ -201,15 +234,11 @@ export default function WeatherApp() {
                       </div>
                   </div>
               </div>
-              
-              <div className="absolute -bottom-2 right-6 opacity-100 pointer-events-none scale-110 transition-transform duration-700 group-hover:scale-125 drop-shadow-2xl">
-                 {getWeatherIcon(weather.current.weather_code, weather.current.is_day, 180)}
-              </div>
             </BentoCard>
 
             <div className="md:col-span-1 lg:col-span-2 row-span-2 grid grid-cols-2 gap-4">
                
-               <BentoCard title="Viento" icon={Wind} className="aspect-square">
+               <BentoCard title="Viento" icon={Wind} className="aspect-square" weatherCode={weather.current.weather_code}>
                   <div className="flex-1 flex flex-col items-center justify-center relative">
                       <div className="absolute inset-0 border border-white/5 rounded-full m-2 animate-[spin_12s_linear_infinite]" />
                       <div className="absolute inset-0 border border-white/5 rounded-full m-6 border-dashed animate-[spin_20s_linear_infinite_reverse]" />
@@ -224,7 +253,7 @@ export default function WeatherApp() {
                   </div>
                </BentoCard>
 
-               <BentoCard title="Humedad" icon={Droplets} className="aspect-square">
+               <BentoCard title="Humedad" icon={Droplets} className="aspect-square" weatherCode={weather.current.weather_code}>
                   <div className="flex-1 flex flex-col justify-end pb-2">
                       <span className="text-4xl font-bold tracking-tighter">{weather.current.relative_humidity_2m}<span className="text-lg text-white/30 align-top">%</span></span>
                       <div className="w-full bg-white/5 h-1.5 rounded-full mt-3 overflow-hidden">
@@ -233,7 +262,7 @@ export default function WeatherApp() {
                   </div>
                </BentoCard>
 
-               <BentoCard title="Amanecer" icon={Sunrise} className="aspect-square">
+               <BentoCard title="Amanecer" icon={Sunrise} className="aspect-square" weatherCode={weather.current.weather_code}>
                    <div className="flex-1 flex flex-col justify-center items-center">
                        <div className="relative w-full h-16 flex items-end justify-center mb-2">
                            <div className="absolute w-full border-b border-white/10 bottom-0" />
@@ -244,7 +273,7 @@ export default function WeatherApp() {
                    </div>
                </BentoCard>
 
-               <BentoCard title="Índice UV" icon={Sun} className="aspect-square">
+               <BentoCard title="Índice UV" icon={Sun} className="aspect-square" weatherCode={weather.current.weather_code}>
                    <div className="flex-1 flex flex-col justify-end pb-2">
                        <span className="text-4xl font-bold tracking-tighter">{weather.daily.uv_index_max[0]}</span>
                        <span className="text-[10px] font-bold uppercase text-white/30 mt-1 tracking-widest">
@@ -254,7 +283,7 @@ export default function WeatherApp() {
                </BentoCard>
             </div>
 
-            <BentoCard className="col-span-1 md:col-span-3 lg:col-span-4 min-h-[160px]">
+            <BentoCard className="col-span-1 md:col-span-3 lg:col-span-4 min-h-[160px]" weatherCode={weather.current.weather_code}>
                 <div className="flex items-center justify-between mb-4 pt-1">
                     <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">Próximas 24 Horas</span>
                     <div className="h-[1px] flex-1 mx-4 bg-white/5" />
@@ -272,7 +301,7 @@ export default function WeatherApp() {
                 </div>
             </BentoCard>
 
-            <BentoCard className="md:col-span-3 lg:col-span-2" title="Pronóstico 7 Días">
+            <BentoCard className="md:col-span-3 lg:col-span-2" title="Pronóstico 7 Días" weatherCode={weather.current.weather_code}>
                 <div className="flex flex-col gap-0.5 mt-2">
                     {weather.daily.time.map((day, i) => (
                         <div key={i} className="flex items-center justify-between py-2.5 px-2 rounded-lg hover:bg-white/5 transition-colors group">
@@ -291,7 +320,7 @@ export default function WeatherApp() {
                 </div>
             </BentoCard>
             
-             <BentoCard className="md:col-span-3 lg:col-span-2 flex flex-col" title="Ubicaciones Guardadas">
+             <BentoCard className="md:col-span-3 lg:col-span-2 flex flex-col" title="Ubicaciones Guardadas" weatherCode={weather.current.weather_code}>
                 {favorites.length === 0 ? (
                   <div className="flex-1 flex flex-col items-center justify-center text-white/30 gap-2">
                     <Heart size={24} className="opacity-20" />

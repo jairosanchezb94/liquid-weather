@@ -42,7 +42,7 @@ export const useWeather = () => {
     try {
       const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&timezone=auto`);
       const data = await res.json();
-      setWeather({ city, country, current: data.current, daily: data.daily, hourly: data.hourly });
+      setWeather({ city, country, latitude: lat, longitude: lon, current: data.current, daily: data.daily, hourly: data.hourly });
     } catch (err) { 
       setError("Error de conexión"); 
     } finally {
