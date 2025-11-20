@@ -40,7 +40,9 @@ export const useWeather = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&timezone=auto`);
+      const baseUrl = import.meta.env.PUBLIC_WEATHER_API_URL;
+      if (!baseUrl) throw new Error("PUBLIC_WEATHER_API_URL not defined");
+      const res = await fetch(`${baseUrl}/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max&timezone=auto`);
       const data = await res.json();
       setWeather({ city, country, latitude: lat, longitude: lon, current: data.current, daily: data.daily, hourly: data.hourly });
     } catch (err) { 
@@ -56,7 +58,9 @@ export const useWeather = () => {
       return;
     }
     try {
-      const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${query}&count=5&language=es&format=json`);
+      const baseUrl = import.meta.env.PUBLIC_GEOCODING_API_URL;
+      if (!baseUrl) throw new Error("PUBLIC_GEOCODING_API_URL not defined");
+      const res = await fetch(`${baseUrl}/search?name=${query}&count=5&language=es&format=json`);
       const data = await res.json();
       setSearchResults(data.results || []);
     } catch (error) {
@@ -68,7 +72,9 @@ export const useWeather = () => {
   const fetchWeatherByCity = async (city: string) => {
     setLoading(true); setError(null);
     try {
-      const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&language=es&format=json`);
+      const baseUrl = import.meta.env.PUBLIC_GEOCODING_API_URL;
+      if (!baseUrl) throw new Error("PUBLIC_GEOCODING_API_URL not defined");
+      const geoRes = await fetch(`${baseUrl}/search?name=${city}&count=1&language=es&format=json`);
       const geoData = await geoRes.json();
       if (!geoData.results) throw new Error("Ciudad no encontrada");
       const { latitude, longitude, name, country } = geoData.results[0];
