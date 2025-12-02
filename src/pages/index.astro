@@ -1,6 +1,7 @@
 ---
 import WeatherApp from '../components/WeatherApp';
 import SpeedInsights from "@vercel/speed-insights/astro";
+import Analytics from "@vercel/analytics/astro";
 import '../styles/weather.scss';
 ---
 
@@ -15,5 +16,6 @@ import '../styles/weather.scss';
 	<body>
 		<WeatherApp client:only="react" />
 		<SpeedInsights />
+		<Analytics />
 	</body>
 </html>
